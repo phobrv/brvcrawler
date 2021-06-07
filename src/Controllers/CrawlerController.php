@@ -4,6 +4,7 @@ namespace Phobrv\BrvCrawler\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use KubAT\PhpSimple\HtmlDomParser;
 use Log;
 use Phobrv\BrvCore\Services\UnitServices;
 use Phobrv\BrvCrawler\Repositories\CrawlerDataRepository;
@@ -74,7 +75,7 @@ class CrawlerController extends Controller {
 	private function crawlPost($url, $profile) {
 		if (!$this->crawlService->checkUrlExist($url) && $this->URLIsValid($url)) {
 
-			$html = file_get_html($url);
+			$html = HtmlDomParser::file_get_html($url);
 
 			$out = $this->crawlElementPost($url, $html, $profile);
 
@@ -91,7 +92,7 @@ class CrawlerController extends Controller {
 			return;
 		}
 
-		$html = file_get_html($profile->url);
+		$html = HtmlDomParser::file_get_html($profile->url);
 		$out = "";
 		foreach ($html->find('a') as $e) {
 			if ($this->checkExistDomain($e->href, $domain)) {
@@ -116,7 +117,7 @@ class CrawlerController extends Controller {
 			$checkExistDataOfProfile = $this->crawlerDataRepository->where('profile_id', $profile->id)->count();
 			if ($checkExistDataOfProfile == 0) {
 				Log::debug("Time: " . date('Y-m-d H:i:s') . " The first ");
-				$html = file_get_html($profile->url);
+				$html = HtmlDomParser::file_get_html($profile->url);
 				$out = "";
 				foreach ($html->find('a') as $e) {
 					$this->addDrafUrl($e->href, $profile);

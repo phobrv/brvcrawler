@@ -26,6 +26,7 @@
 					@include('phobrv::input.inputSelect',['label'=>'Spread','key'=>'is_spread', 'array'=> ['1'=>'Yes','0'=>'No'] , 'value'=> $data['crawler_profile']->is_spread ?? '0' ])
 					<hr>
 					@include('phobrv::input.inputText',['label'=>'Title Tag','key'=>'title_tag',  'value'=> $data['crawler_profile']->title_tag ?? '' ])
+					@include('phobrv::input.inputText',['label'=>'Content Tag','key'=>'content_tag',  'value'=> $data['crawler_profile']->content_tag ?? '' ])
 
 					@include('phobrv::input.inputText',['label'=>'Thumb Tag','key'=>'thumb_tag',  'value'=> $data['crawler_profile']->thumb_tag ?? '' ])
 					@include('phobrv::input.inputText',['label'=>'Meta title Tag','key'=>'meta_title_tag',  'value'=> $data['crawler_profile']->meta_title_tag ?? '' ])
