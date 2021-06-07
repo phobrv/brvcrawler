@@ -16,8 +16,9 @@
 	<div class="box-header font16">
 		Chọn nguồn link crawl
 	</div>
-	<div class="box-body">
-		<div  class="form-horizontal" >
+	<div class="box-body" >
+		<form  class="form-horizontal"  method="post" action="{{ route("crawler.apiCrawlHandwork") }}">
+			@csrf
 			<div class="form-group">
 				<label for="inputEmail3" class="col-sm-2 control-label">{{__('Source')}}</label>
 				<div class="col-sm-8">
@@ -29,10 +30,10 @@
 					</select>
 				</div>
 				<div class="col-sm-2">
-					<a type="submit" id="btnCrawl" class=" btn btn-primary" onclick="crawlHandWork()"> <i class=""></i> Crawl</a>
+					<a type="submit" id="btnCrawl" class=" btn btn-primary" > <i class=""></i> Crawl</a>
 				</div>
 			</div>
-		</div>
+		</form>
 		<table id="" class="table table-bordered table-striped">
 			<thead>
 				<tr>
