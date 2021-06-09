@@ -51,6 +51,7 @@ class CrawlerController extends Controller {
 	//API
 	public function apiCrawlHandwork(Request $request) {
 		$data = $request->all();
+
 		$profile = $this->crawlerProfileRepository->find($data['source']);
 		$out = [];
 		switch ($profile->type) {
@@ -69,16 +70,18 @@ class CrawlerController extends Controller {
 			break;
 		}
 		$out = $this->crawlService->renderTableReportCrawl($profile->id);
-		return $out;
+		// return $out;
+		return redirect()->route('crawler.crawlHandwork');
+
 	}
 
 	private function crawlPost($url, $profile) {
-		if (!$this->crawlService->checkUrlExist($url) && $this->URLIsValid($url)) {
+		if (!$this->crawlService->checkUrlExist($url) && $this->crawlService->URLIsValid($url)) {
 
 			$html = HtmlDomParser::file_get_html($url);
 
 			$out = $this->crawlElementPost($url, $html, $profile);
-
+			dd($out);
 			$this->crawlerDataRepository->updateOrCreate($out, [$out['url']]);
 
 			return "Crawler " . $url . "<br>";
@@ -91,11 +94,10 @@ class CrawlerController extends Controller {
 		if (!$profile->domain) {
 			return;
 		}
-
 		$html = HtmlDomParser::file_get_html($profile->url);
 		$out = "";
 		foreach ($html->find('a') as $e) {
-			if ($this->checkExistDomain($e->href, $domain)) {
+			if ($this->crawlService->checkExistDomain($e->href, $domain)) {
 				$out .= $this->crawlPost(trim($e->href), $profile);
 			}
 		}
@@ -149,8 +151,8 @@ class CrawlerController extends Controller {
 
 	private function addDrafUrl($url, $profile) {
 
-		if ($this->checkExistDomain($url, $profile->domain) && !$this->crawlService->checkUrlExist($url)) {
-			if ($this->URLIsValid($url)) {
+		if ($this->crawlService->checkExistDomain($url, $profile->domain) && !$this->crawlService->checkUrlExist($url)) {
+			if ($this->crawlService->URLIsValid($url)) {
 				$this->crawlerDataRepository->create(
 					[
 						'profile_id' => $profile->id,
@@ -183,22 +185,5 @@ class CrawlerController extends Controller {
 		Log::debug("Time: " . date('Y-m-d H:i:s') . " End crawlElementPost ");
 		return $out;
 	}
-	public function checkExistDomain($url, $domain) {
-		$urlEle = parse_url($url);
 
-		return (isset($urlEle['host']) && $urlEle['host'] == $domain) ? true : false;
-	}
-
-	function URLIsValid($URL) {
-		$exists = true;
-		$file_headers = @get_headers($URL);
-		$InvalidHeaders = array('404', '403', '500');
-		foreach ($InvalidHeaders as $HeaderVal) {
-			if (strstr($file_headers[0], $HeaderVal)) {
-				$exists = false;
-				break;
-			}
-		}
-		return $exists;
-	}
 }

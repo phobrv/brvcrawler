@@ -7,7 +7,6 @@
 			<i class="fa fa-backward"></i> @lang('Back')
 		</a>
 	</li>
-
 </ul>
 @endsection
 
@@ -30,7 +29,8 @@
 					</select>
 				</div>
 				<div class="col-sm-2">
-					<a type="submit" id="btnCrawl" class=" btn btn-primary" > <i class=""></i> Crawl</a>
+					<button type="submit" class=" btn btn-primary">Crawl</button>
+					{{-- <a type="submit" id="btnCrawl" class=" btn btn-primary" > Crawl xx</a> --}}
 				</div>
 			</div>
 		</form>
@@ -45,6 +45,7 @@
 				</tr>
 			</thead>
 			<tbody id="crawlResult">
+
 			</tbody>
 		</table>
 	</div>
@@ -63,30 +64,30 @@
 
 @section('scripts')
 <script type="text/javascript">
-	function crawlHandWork(){
-		var source = $('#source').val();
-		if(source == 0)
-		{
-			$('#source').addClass('red');
-		}
-		else
-		{
-			$('#source').removeClass('red');
-			$('#btnCrawl i').addClass('fa fa-spinner fa-spin');
-			$('#source').prop('disabled', 'disabled');
-			$.ajax({
-				headers : { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-				url: '{{URL::route("crawler.apiCrawlHandwork")}}',
-				type: 'POST',
-				data: {source: source},
-				success: function(output){
-					$('#crawlResult').html(output);
-					$('#btnCrawl i').removeClass('fa fa-spinner fa-spin');
-				}
-			});
-		}
+	// function crawlHandWork(){
+	// 	var source = $('#source').val();
+	// 	if(source == 0)
+	// 	{
+	// 		$('#source').addClass('red');
+	// 	}
+	// 	else
+	// 	{
+	// 		$('#source').removeClass('red');
+	// 		$('#btnCrawl i').addClass('fa fa-spinner fa-spin');
+	// 		$('#source').prop('disabled', 'disabled');
+	// 		$.ajax({
+	// 			headers : { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+	// 			url: '{{URL::route("crawler.apiCrawlHandwork")}}',
+	// 			type: 'POST',
+	// 			data: {source: source},
+	// 			success: function(output){
+	// 				$('#crawlResult').html(output);
+	// 				$('#btnCrawl i').removeClass('fa fa-spinner fa-spin');
+	// 			}
+	// 		});
+	// 	}
 
 
-	}
+	// }
 </script>
 @endsection

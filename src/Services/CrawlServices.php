@@ -62,4 +62,16 @@ class CrawlServices {
 		$urlEle = parse_url($url);
 		return isset($urlEle['host']) ? $urlEle['host'] : "";
 	}
+	public function URLIsValid($URL) {
+		$exists = true;
+		$file_headers = @get_headers($URL);
+		$InvalidHeaders = array('404', '403', '500');
+		foreach ($InvalidHeaders as $HeaderVal) {
+			if (strstr($file_headers[0], $HeaderVal)) {
+				$exists = false;
+				break;
+			}
+		}
+		return $exists;
+	}
 }
