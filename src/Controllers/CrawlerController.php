@@ -11,6 +11,7 @@ use Phobrv\BrvCrawler\Repositories\CrawlerDataRepository;
 use Phobrv\BrvCrawler\Repositories\CrawlerProfileRepository;
 use Phobrv\BrvCrawler\Services\CrawlServices;
 use Str;
+use Yajra\Datatables\Datatables;
 
 class CrawlerController extends Controller {
 	protected $crawlerProfileRepository;
@@ -40,12 +41,24 @@ class CrawlerController extends Controller {
 			);
 
 			$data['profiles'] = $this->crawlerProfileRepository->all();
+			$data['crawlerData'] = $this->crawlerDataRepository->all();
+			// dd($data['crawlerData']);
 			return view('phobrv::crawler.hardword')->with('data', $data);
 
 		} catch (Exception $e) {
 
 		}
+	}
 
+	public function getData() {
+		$data['crawlerData'] = $this->crawlerDataRepository->all();
+		return Datatables::of($data['crawlerData'])
+			->addColumn('create', function ($post) {
+				return date('d/m/Y', strtotime($post->created_at));
+			})
+			->addColumn('action', function ($post) {
+				return view('phobrv::crawler.components.action', ['post' => $post]);
+			})->make(true);
 	}
 
 	//API
@@ -70,24 +83,41 @@ class CrawlerController extends Controller {
 			break;
 		}
 		$out = $this->crawlService->renderTableReportCrawl($profile->id);
-		// return $out;
 		return redirect()->route('crawler.crawlHandwork');
 
 	}
 
 	private function crawlPost($url, $profile) {
 		if (!$this->crawlService->checkUrlExist($url) && $this->crawlService->URLIsValid($url)) {
-
 			$html = HtmlDomParser::file_get_html($url);
-
 			$out = $this->crawlElementPost($url, $html, $profile);
-			dd($out);
-			$this->crawlerDataRepository->updateOrCreate($out, [$out['url']]);
+			$out['profile_id'] = $profile->id;
+			$out['url'] = $url;
+			$this->crawlerDataRepository->updateOrCreate($out);
 
 			return "Crawler " . $url . "<br>";
 		} else {
 			return "Not Crawler " . $url . "</br>";
 		}
+	}
+	private function crawlElementPost($url, $html, $profile) {
+		Log::debug("Time: " . date('Y-m-d H:i:s') . " Start crawlElementPost ");
+		$out = [];
+		$arrayTag = ['title_tag', 'content_tag', 'thumb_tag', 'meta_title_tag', 'meta_description_tag'];
+		foreach ($arrayTag as $value) {
+			if (isset($profile->$value)) {
+				$key = preg_replace("/(_tag)/i", '', $value);
+				$out[$key] = $this->crawlService->findByTag($html, $profile->$value);
+			}
+		}
+		if (isset($out['title']) && isset($out['content'])) {
+			$out['slug'] = Str::slug($out['title']);
+			$out['status'] = config('brvcrawler.crawlerStatus.pending');
+		} else {
+			$out['status'] = config('brvcrawler.crawlerStatus.fail');
+		}
+		Log::debug("Time: " . date('Y-m-d H:i:s') . " End crawlElementPost ");
+		return $out;
 	}
 
 	private function crawlMultiPost($profile) {
@@ -102,9 +132,7 @@ class CrawlerController extends Controller {
 			}
 		}
 		return $out;
-
 	}
-
 	private function crawlMultiPostSpread($profile) {
 		if (!$profile->domain) {
 			return;
@@ -122,7 +150,7 @@ class CrawlerController extends Controller {
 				$html = HtmlDomParser::file_get_html($profile->url);
 				$out = "";
 				foreach ($html->find('a') as $e) {
-					$this->addDrafUrl($e->href, $profile);
+					$this->addDraftUrl($e->href, $profile);
 				}
 				return $out;
 			} else {
@@ -132,7 +160,6 @@ class CrawlerController extends Controller {
 		}
 		$this->crawlMultiPostSpread($profile);
 	}
-
 	private function crawlPostSpared($draf, $profile) {
 
 		$html = file_get_html($draf->url);
@@ -141,49 +168,25 @@ class CrawlerController extends Controller {
 		$out = "";
 		$startTime = strtotime("now");
 		foreach ($html->find('a') as $e) {
-			$this->addDrafUrl($e->href, $profile);
+			$this->addDraftUrl($e->href, $profile);
 		}
 		$endDate = strtotime("now");
-		Log::debug("addDrafUrl " . ($endDate - $startTime));
+		Log::debug("addDraftUrl " . ($endDate - $startTime));
 
 		return $out;
 	}
-
-	private function addDrafUrl($url, $profile) {
-
+	private function addDraftUrl($url, $profile) {
 		if ($this->crawlService->checkExistDomain($url, $profile->domain) && !$this->crawlService->checkUrlExist($url)) {
 			if ($this->crawlService->URLIsValid($url)) {
 				$this->crawlerDataRepository->create(
 					[
 						'profile_id' => $profile->id,
 						'url' => $url,
-						'status' => '-3',
+						'status' => config('brvcrawler.crawlerStatus.draft'),
 					]
 				);
 			}
-
 		}
-	}
-
-	private function crawlElementPost($url, $html, $profile) {
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " Start crawlElementPost ");
-		$out = [];
-		$arrayTag = ['title_tag', 'content_tag', 'thumb_tag', 'meta_title_tag', 'meta_description_tag'];
-		foreach ($arrayTag as $value) {
-			if (isset($profile->$value)) {
-				$key = preg_replace("/(_tag)/i", '', $value);
-				$out[$key] = $this->crawlService->findByTag($html, $profile->$value);
-			}
-		}
-		if (isset($out['title']) && isset($out['content'])) {
-			$out['slug'] = Str::slug($out['title']);
-			$out['status'] = '-2';
-
-		} else {
-			$out['status'] = '-1';
-		}
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " End crawlElementPost ");
-		return $out;
 	}
 
 }

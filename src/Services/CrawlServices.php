@@ -13,7 +13,7 @@ class CrawlServices {
 		CrawlerDataRepository $crawlerDataRepository) {
 		$this->crawlerDataRepository = $crawlerDataRepository;
 		$this->crawlerProfileRepository = $crawlerProfileRepository;
-		$this->crawlDataStatus = config('option.crawler_data_status');
+		$this->crawlDataStatus = config('brvcrawler.crawlerStatusLabel');
 	}
 	public function findByTag($html, $tag) {
 		foreach ($html->find($tag) as $e) {
@@ -43,13 +43,13 @@ class CrawlServices {
 	}
 	public function rendCrawlDataStatus($status) {
 		switch ($status) {
-		case '-2':
+		case '3':
 			$out = "<td align='center' style='color:orange'>" . $this->crawlDataStatus[$status] . "</td>";
 			break;
 		case '1':
 			$out = "<td align='center' style='color:green'>" . $this->crawlDataStatus[$status] . "</td>";
 			break;
-		case '-1':
+		case '0':
 			$out = "<td align='center' style='color:red'>" . $this->crawlDataStatus[$status] . "</td>";
 			break;
 		default:

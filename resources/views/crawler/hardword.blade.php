@@ -34,7 +34,7 @@
 				</div>
 			</div>
 		</form>
-		<table id="" class="table table-bordered table-striped">
+		<table id="crawlerData" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>{{__('Date Crawl')}}</th>
@@ -44,9 +44,7 @@
 					<th class="text-center">{{__('Action')}}</th>
 				</tr>
 			</thead>
-			<tbody id="crawlResult">
 
-			</tbody>
 		</table>
 	</div>
 
@@ -64,6 +62,23 @@
 
 @section('scripts')
 <script type="text/javascript">
+	crawlerData =  $('#crawlerData').DataTable({
+		lengthMenu: [[15,35,50, -1], [15,35,50, "All"]],
+		"order": [[ 0, "desc" ]],
+		processing: true,
+		serverSide: true,
+		ajax: "{{ route('crawler.getData') }}",
+		columns:
+		[
+		{ data: 'create', name: 'create',className:'text-center' },
+		{ data: 'url', name: 'url' },
+		{ data: 'title', name: 'title' },
+		{ data: 'status', name: 'status', orderable: false, searchable: false,className:'text-center'},
+		{ data: 'action', name: 'action',orderable: false, searchable: false,className:'text-center'},
+		]
+	})
+
+
 	// function crawlHandWork(){
 	// 	var source = $('#source').val();
 	// 	if(source == 0)
