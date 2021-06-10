@@ -14,8 +14,14 @@ return [
 	],
 	'crawlerStatusLabel' => [
 		'3' => 'Draft',
-		'2' => 'Pending',
-		'0' => 'Fail',
-		'1' => 'Success',
+		'2' => 'Pending', //Crawl complete
+		'0' => 'Fail', // Crawl fail
+		'1' => 'Success', //Imported into posts table
+	],
+	'crawlerStatusColor' => [
+		'3' => 'grey',
+		'2' => 'orange', //Crawl complete
+		'0' => 'red', // Crawl fail
+		'1' => 'green', //Imported into posts table
 	],
 ];

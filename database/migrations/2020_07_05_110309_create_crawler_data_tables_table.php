@@ -26,7 +26,7 @@ class CreateCrawlerDataTablesTable extends Migration {
 			$table->longText('meta_description')->nullable();
 			$table->longText('meta_keywords')->nullable();
 			$table->text('excerpt')->nullable();
-			$table->string('status', 20)->default('-3');
+			$table->string('status', 20)->default('3');
 			$table->timestamps();
 		});
 	}

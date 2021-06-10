@@ -1,0 +1,1 @@
+<span style="color: {{ config('brvcrawler.crawlerStatusColor')[$status] ?? '' }};">{{ config('brvcrawler.crawlerStatusLabel')[$status] }}</span>
