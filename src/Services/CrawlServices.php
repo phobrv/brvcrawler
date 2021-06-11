@@ -69,9 +69,12 @@ class CrawlServices {
 				if (!$this->checkUrlExist($_url)) {
 					$this->addDraftUrl($_url, $profile);
 				}
-				// if ($profile->is_spread) {
-				// 	$this->crawlMultiPost($_url, $profile, $level);
-				// }
+				if ($profile->is_spread) {
+					if (!$this->checkUrlSpread($_url)) {
+						$this->changeSpreadStatus($_url);
+						$this->crawlMultiPost($_url, $profile, $level);
+					}
+				}
 			}
 			// $this->crawlPost(trim($e->href), $profile);
 		}
@@ -90,10 +93,20 @@ class CrawlServices {
 			);
 		}
 	}
+	public function changeSpreadStatus($url) {
+		$url = $this->crawlerDataRepository->where('url', $url)->first();
+		$url->status = config('brvcrawler.crawlerStatus.spread');
+		$url->save();
+	}
 	public function checkUrlExist($url) {
 		$check = $this->crawlerDataRepository->where('url', $url)->first();
 		return ($check) ? true : false;
 	}
+	public function checkUrlSpread($url) {
+		$check = $this->crawlerDataRepository->where('status', config('brvcrawler.crawlerStatus.spread'))->where('url', $url)->first();
+		return ($check) ? true : false;
+	}
+
 	public function handleImageInContent($content) {
 		$html = HtmlDomParser::str_get_html($content);
 		$folder_download = storage_path('app/public/photos/shares/download/');
