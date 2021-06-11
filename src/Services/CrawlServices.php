@@ -60,6 +60,8 @@ class CrawlServices {
 	public function handleImageInContent($content) {
 		$html = HtmlDomParser::str_get_html($content);
 		$src = "";
+		$path = storage_path('app/public/photos/shares/download');
+		return $path;
 		foreach ($html->find('img') as $element) {
 			$imgName = $this->commonServices->filename_from_uri($element->src);
 			$src .= $imgName . "<br>";
