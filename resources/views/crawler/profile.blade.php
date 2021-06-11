@@ -20,6 +20,9 @@
 				<div class="box-body">
 					@csrf
 					@include('phobrv::input.inputText',['label'=>'Source','key'=>'url', 'required'=> true , 'value'=> $data['crawler_profile']->url ?? '' ])
+					@isset($data['crawler_profile'])
+					@include('phobrv::input.inputText',['label'=>'Domain','key'=>'domain', 'required'=> true , 'value'=> $data['crawler_profile']->domain ?? '' ])
+					@endif
 					@include('phobrv::input.inputSelect',['label'=>'Type','key'=>'type', 'array'=> $arrayCrawlerType , 'value'=> $data['crawler_profile']->type ?? '0' ])
 					@include('phobrv::input.inputSelect',['label'=>'Check before Add','key'=>'is_check', 'array'=> ['1'=>'Yes','0'=>'No'] , 'value'=> $data['crawler_profile']->is_check ?? '1' ])
 					@include('phobrv::input.inputSelect',['label'=>'Spread','key'=>'is_spread', 'array'=> ['1'=>'Yes','0'=>'No'] , 'value'=> $data['crawler_profile']->is_spread ?? '0' ])
@@ -39,7 +42,7 @@
 								@include('phobrv::input.inputText',['label'=>'Meta desc Tag','key'=>'meta_description_tag',  'value'=> $data['crawler_profile']->meta_description_tag ?? '' ])
 							</div>
 							<div class="tab-pane" id="tab_2">
-								@include('phobrv::input.inputSelect',['label'=>'Profile','key'=>'profile_id', 'array'=> $data['arrayProfile'] , 'value'=> $data['crawler_profile']->is_check ?? '1' ])
+								@include('phobrv::input.inputSelect',['label'=>'Profile','key'=>'profile_id', 'array'=> $data['arrayProfile'] , 'value'=> '0' ])
 
 							</div>
 						</div>

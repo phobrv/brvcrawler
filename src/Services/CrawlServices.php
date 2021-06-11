@@ -27,8 +27,8 @@ class CrawlServices {
 		if (!$this->checkUrlExist($url) && $this->commonServices->URLIsValid($url)) {
 			$html = HtmlDomParser::file_get_html($url);
 			$out = $this->crawlElementPost($url, $html, $profile);
+
 			$out['content'] = $this->handleImageInContent($out['content']);
-			return $out['content'];
 			$out['profile_id'] = $profile->id;
 			$out['url'] = $url;
 			$this->crawlerDataRepository->updateOrCreate($out);
@@ -59,14 +59,16 @@ class CrawlServices {
 
 	public function handleImageInContent($content) {
 		$html = HtmlDomParser::str_get_html($content);
-		$src = "";
-		$path = storage_path('app/public/photos/shares/download');
-		return $path;
+		$folder_download = storage_path('app/public/photos/shares/download/');
 		foreach ($html->find('img') as $element) {
-			$imgName = $this->commonServices->filename_from_uri($element->src);
-			$src .= $imgName . "<br>";
+			$imgSrc = $element->src;
+			$imgName = $this->commonServices->filename_from_uri($imgSrc);
+			$newImgSrc = env('APP_URL') . '/storage/photos/shares/download/' . $imgName;
+			$path = $folder_download . $imgName;
+			file_put_contents($path, file_get_contents($imgSrc));
+			$content = str_replace($imgSrc, $newImgSrc, $content);
 		}
-		return $src;
+		return $content;
 	}
 
 	public function crawlMultiPost($profile) {
