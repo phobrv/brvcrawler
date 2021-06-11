@@ -65,13 +65,14 @@ class CrawlServices {
 		foreach ($html->find('a') as $e) {
 			$level++;
 			$_url = $this->commonServices->handleUrl($e->href, $profile->domain);
-			if ($_url && !$this->checkUrlExist($_url)) {
-				$this->addDraftUrl($_url, $profile);
-				if ($profile->is_spread && $level < 3) {
-					$this->crawlMultiPost($_url, $profile, $level);
+			if ($_url) {
+				if (!$this->checkUrlExist($_url)) {
+					$this->addDraftUrl($_url, $profile);
 				}
+				// if ($profile->is_spread) {
+				// 	$this->crawlMultiPost($_url, $profile, $level);
+				// }
 			}
-
 			// $this->crawlPost(trim($e->href), $profile);
 		}
 		Log::debug("Time: " . date('Y-m-d H:i:s') . " EndCrawl " . $url);
