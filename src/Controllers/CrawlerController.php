@@ -36,10 +36,8 @@ class CrawlerController extends Controller {
 					['text' => 'Crawler Hardword', 'href' => ''],
 				]
 			);
-
 			$data['profiles'] = $this->crawlerProfileRepository->all();
 			return view('phobrv::crawler.index')->with('data', $data);
-
 		} catch (Exception $e) {
 
 		}

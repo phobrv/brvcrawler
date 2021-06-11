@@ -2,8 +2,8 @@
 @section('header')
 <ul>
 	<li>
-		<a href="#"  class="btn btn-default float-left">
-			Crawler test
+		<a href="{{ route('crawler.index') }}"  class="btn btn-primary float-left">
+			Crawl
 		</a>
 	</li>
 </ul>
@@ -11,7 +11,6 @@
 @section('content')
 <div class="row">
 	<div class="col-md-6">
-
 		<form  class="form-horizontal" id="formSubmit" method="post" action="{{isset($data['crawler_profile']) ? route('crawlerProfile.update',['crawlerProfile'=>$data['crawler_profile']->id]) : route('crawlerProfile.store')}}">
 			@isset($data['crawler_profile']) @method('put') @endif
 			<div class="box box-primary">
@@ -24,13 +23,27 @@
 					@include('phobrv::input.inputSelect',['label'=>'Type','key'=>'type', 'array'=> $arrayCrawlerType , 'value'=> $data['crawler_profile']->type ?? '0' ])
 					@include('phobrv::input.inputSelect',['label'=>'Check before Add','key'=>'is_check', 'array'=> ['1'=>'Yes','0'=>'No'] , 'value'=> $data['crawler_profile']->is_check ?? '1' ])
 					@include('phobrv::input.inputSelect',['label'=>'Spread','key'=>'is_spread', 'array'=> ['1'=>'Yes','0'=>'No'] , 'value'=> $data['crawler_profile']->is_spread ?? '0' ])
-					<hr>
-					@include('phobrv::input.inputText',['label'=>'Title Tag','key'=>'title_tag',  'value'=> $data['crawler_profile']->title_tag ?? '' ])
-					@include('phobrv::input.inputText',['label'=>'Content Tag','key'=>'content_tag',  'value'=> $data['crawler_profile']->content_tag ?? '' ])
+					@include('phobrv::input.label',['label'=>'Config Tags'])
+					<div class="nav-tabs-custom">
+						<ul class="nav nav-tabs">
+							<li class="active"><a href="#tab_1" data-toggle="tab">New</a></li>
+							<li><a href="#tab_2" data-toggle="tab">Exist</a></li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="tab_1">
+								@include('phobrv::input.inputText',['label'=>'Title Tag','key'=>'title_tag',  'value'=> $data['crawler_profile']->title_tag ?? '' ])
+								@include('phobrv::input.inputText',['label'=>'Content Tag','key'=>'content_tag',  'value'=> $data['crawler_profile']->content_tag ?? '' ])
 
-					@include('phobrv::input.inputText',['label'=>'Thumb Tag','key'=>'thumb_tag',  'value'=> $data['crawler_profile']->thumb_tag ?? '' ])
-					@include('phobrv::input.inputText',['label'=>'Meta title Tag','key'=>'meta_title_tag',  'value'=> $data['crawler_profile']->meta_title_tag ?? '' ])
-					@include('phobrv::input.inputText',['label'=>'Meta desc Tag','key'=>'meta_description_tag',  'value'=> $data['crawler_profile']->meta_description_tag ?? '' ])
+								@include('phobrv::input.inputText',['label'=>'Thumb Tag','key'=>'thumb_tag',  'value'=> $data['crawler_profile']->thumb_tag ?? '' ])
+								@include('phobrv::input.inputText',['label'=>'Meta title Tag','key'=>'meta_title_tag',  'value'=> $data['crawler_profile']->meta_title_tag ?? '' ])
+								@include('phobrv::input.inputText',['label'=>'Meta desc Tag','key'=>'meta_description_tag',  'value'=> $data['crawler_profile']->meta_description_tag ?? '' ])
+							</div>
+							<div class="tab-pane" id="tab_2">
+								@include('phobrv::input.inputSelect',['label'=>'Profile','key'=>'profile_id', 'array'=> $data['arrayProfile'] , 'value'=> $data['crawler_profile']->is_check ?? '1' ])
+
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="box-footer">
 					<button class="btn btn-primary pull-right">{{$data['submit_label']}}</button>

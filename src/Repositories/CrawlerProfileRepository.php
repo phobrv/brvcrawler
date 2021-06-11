@@ -10,5 +10,5 @@ use Prettus\Repository\Contracts\RepositoryInterface;
  * @package namespace App\Repositories;
  */
 interface CrawlerProfileRepository extends RepositoryInterface {
-	//
+	public function getProfileArray();
 }
