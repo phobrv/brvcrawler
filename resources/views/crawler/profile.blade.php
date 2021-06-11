@@ -19,7 +19,7 @@
 				</div>
 				<div class="box-body">
 					@csrf
-					@include('phobrv::input.inputText',['label'=>'Source','key'=>'url', 'required'=> true , 'value'=> $data['crawler_profile']->url ?? '' ])
+					@include('phobrv::input.inputText',['label'=>'Url','key'=>'url', 'required'=> true , 'value'=> $data['crawler_profile']->url ?? '' ])
 					@isset($data['crawler_profile'])
 					@include('phobrv::input.inputText',['label'=>'Domain','key'=>'domain', 'required'=> true , 'value'=> $data['crawler_profile']->domain ?? '' ])
 					@endif

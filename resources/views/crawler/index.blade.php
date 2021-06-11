@@ -94,8 +94,6 @@
 				dataType: 'json',
 				success: function (res) {
 					console.log(res)
-
-
 					$('#btnCrawl i').removeClass('fa fa-spinner fa-spin')
 					$('#source').removeAttr('disabled');
 					if (res.code == 0) {

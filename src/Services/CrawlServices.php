@@ -27,12 +27,13 @@ class CrawlServices {
 		if (!$this->checkUrlExist($url) && $this->commonServices->URLIsValid($url)) {
 			$html = HtmlDomParser::file_get_html($url);
 			$out = $this->crawlElementPost($url, $html, $profile);
-
-			$out['content'] = $this->handleImageInContent($out['content']);
-			$out['profile_id'] = $profile->id;
-			$out['url'] = $url;
-			$this->crawlerDataRepository->updateOrCreate($out);
-			return ['code' => '0', 'msg' => 'Crawl success'];
+			if (!empty($out['content']) && !empty($out['title'])) {
+				$out['content'] = $this->handleImageInContent($out['content']);
+				$out['profile_id'] = $profile->id;
+				$out['url'] = $url;
+				$this->crawlerDataRepository->create($out);
+				return ['code' => '0', 'msg' => 'Crawl success'];
+			}
 		} else {
 			return ['code' => '1', 'msg' => 'Invalid request'];
 		}
@@ -57,6 +58,41 @@ class CrawlServices {
 		return $out;
 	}
 
+	public function crawlMultiPost($url, $profile, $level = 0) {
+		Log::debug("Time: " . date('Y-m-d H:i:s') . " StartCrawl " . $url);
+		$html = HtmlDomParser::file_get_html($url);
+		$level = 0;
+		foreach ($html->find('a') as $e) {
+			$level++;
+			$_url = $this->commonServices->handleUrl($e->href, $profile->domain);
+			if ($_url && !$this->checkUrlExist($_url)) {
+				$this->addDraftUrl($_url, $profile);
+				if ($profile->is_spread && $level < 3) {
+					$this->crawlMultiPost($_url, $profile, $level);
+				}
+			}
+
+			// $this->crawlPost(trim($e->href), $profile);
+		}
+		Log::debug("Time: " . date('Y-m-d H:i:s') . " EndCrawl " . $url);
+		return ['code' => '0', 'msg' => 'Crawl success'];
+	}
+
+	public function addDraftUrl($url, $profile) {
+		if ($this->commonServices->URLIsValid($url) && !$this->checkUrlExist($url)) {
+			$this->crawlerDataRepository->create(
+				[
+					'profile_id' => $profile->id,
+					'url' => $url,
+					'status' => config('brvcrawler.crawlerStatus.draft'),
+				]
+			);
+		}
+	}
+	public function checkUrlExist($url) {
+		$check = $this->crawlerDataRepository->where('url', $url)->first();
+		return ($check) ? true : false;
+	}
 	public function handleImageInContent($content) {
 		$html = HtmlDomParser::str_get_html($content);
 		$folder_download = storage_path('app/public/photos/shares/download/');
@@ -71,46 +107,8 @@ class CrawlServices {
 		return $content;
 	}
 
-	public function crawlMultiPost($profile) {
-		if (!$profile->domain) {
-			return;
-		}
-		$html = HtmlDomParser::file_get_html($profile->url);
-		$out = "";
-		foreach ($html->find('a') as $e) {
-			if ($this->checkExistDomain($e->href, $domain)) {
-				$out .= $this->crawlPost(trim($e->href), $profile);
-			}
-		}
-		return $out;
-	}
-	public function crawlMultiPostSpread($profile) {
-		if (!$profile->domain) {
-			return;
-		}
+	//////
 
-		$draf = $this->crawlerDataRepository->where('profile_id', $profile->id)->where('status', '-3')->first();
-
-		if ($draf) {
-			Log::debug("Time: " . date('Y-m-d H:i:s') . " Start crawlPostSpared ");
-			$this->crawlPostSpared($draf, $profile);
-		} else {
-			$checkExistDataOfProfile = $this->crawlerDataRepository->where('profile_id', $profile->id)->count();
-			if ($checkExistDataOfProfile == 0) {
-				Log::debug("Time: " . date('Y-m-d H:i:s') . " The first ");
-				$html = HtmlDomParser::file_get_html($profile->url);
-				$out = "";
-				foreach ($html->find('a') as $e) {
-					$this->addDraftUrl($e->href, $profile);
-				}
-				return $out;
-			} else {
-				Log::debug("Time: " . date('Y-m-d H:i:s') . " Crawl end ");
-				return "Crawl end";
-			}
-		}
-		$this->crawlMultiPostSpread($profile);
-	}
 	public function crawlPostSpared($draf, $profile) {
 
 		$html = file_get_html($draf->url);
@@ -125,24 +123,6 @@ class CrawlServices {
 		Log::debug("addDraftUrl " . ($endDate - $startTime));
 
 		return $out;
-	}
-	public function addDraftUrl($url, $profile) {
-		if ($this->checkExistDomain($url, $profile->domain) && !$this->checkUrlExist($url)) {
-			if ($this->commonServices->URLIsValid($url)) {
-				$this->crawlerDataRepository->create(
-					[
-						'profile_id' => $profile->id,
-						'url' => $url,
-						'status' => config('brvcrawler.crawlerStatus.draft'),
-					]
-				);
-			}
-		}
-	}
-
-	public function checkUrlExist($url) {
-		$check = $this->crawlerDataRepository->where('url', $url)->first();
-		return ($check) ? true : false;
 	}
 
 }

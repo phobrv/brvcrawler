@@ -112,15 +112,8 @@ class CrawlerController extends Controller {
 		case 'post':
 			return $this->crawlService->crawlPost(trim($profile->url), $profile);
 			break;
-
 		case 'category':
-			if ($profile->is_spread) {
-
-				$multi = $this->crawlMultiPostSpread($profile);
-
-			} else {
-				$multi = $this->crawlMultiPost($profile);
-			}
+			return $this->crawlService->crawlMultiPost($profile->url, $profile, 0);
 			break;
 		}
 		return response()->json(['code' => '0', 'msg' => 'Success']);
