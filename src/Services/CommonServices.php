@@ -10,7 +10,7 @@ class CommonServices {
 	public function URLIsValid($URL) {
 		$exists = true;
 		$file_headers = @get_headers($URL);
-		$InvalidHeaders = array('404', '403', '500');
+		$InvalidHeaders = array('404', '403', '500', '301');
 		foreach ($InvalidHeaders as $HeaderVal) {
 			if (empty($file_headers[0]) || strstr($file_headers[0], $HeaderVal)) {
 				$exists = false;
@@ -19,6 +19,16 @@ class CommonServices {
 		}
 		return $exists;
 	}
+
+	public function urlGetContent($url) {
+		$client = new \GuzzleHttp\Client();
+		$response = $client->request('GET', $url);
+		return [
+			'code' => $response->getStatusCode(),
+			'body' => $response->getBody(),
+		];
+	}
+
 	public function getDomainFromUrl($url) {
 		$urlEle = parse_url($url);
 		return isset($urlEle['host']) ? $urlEle['scheme'] . "://" . $urlEle['host'] : "";
@@ -36,6 +46,9 @@ class CommonServices {
 			return $domain . $url;
 		}
 		if ($urlEle['host'] == $domainEle['host']) {
+			if ($urlEle['scheme'] != $domainEle['scheme']) {
+				$url = str_replace($urlEle['scheme'], $domainEle['scheme'], $url);
+			}
 			return $url;
 		} else {
 			return null;

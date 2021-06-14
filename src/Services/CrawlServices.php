@@ -13,6 +13,7 @@ class CrawlServices {
 	protected $crawlerDataRepository;
 	protected $crawlDataStatus;
 	protected $commonServices;
+	protected $arrayUrlSpread = [];
 	public function __construct(
 		CommonServices $commonServices,
 		CrawlerProfileRepository $crawlerProfileRepository,
@@ -25,21 +26,15 @@ class CrawlServices {
 
 	public function crawlPost($url, $profile) {
 		if (!$this->checkUrlExist($url) && $this->commonServices->URLIsValid($url)) {
-			$html = HtmlDomParser::file_get_html($url);
-			$out = $this->crawlElementPost($url, $html, $profile);
-			if (!empty($out['content']) && !empty($out['title'])) {
-				$out['content'] = $this->handleImageInContent($out['content']);
-				$out['profile_id'] = $profile->id;
-				$out['url'] = $url;
-				$this->crawlerDataRepository->create($out);
-				return ['code' => '0', 'msg' => 'Crawl success'];
-			}
+			$draft = $this->addDraftUrl($url, $profile);
+			return $this->crawlElementPost($draft, $profile);
 		} else {
 			return ['code' => '1', 'msg' => 'Invalid request'];
 		}
 	}
-	public function crawlElementPost($url, $html, $profile) {
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " Start crawlElementPost ");
+	public function crawlElementPost($draft, $profile) {
+		Log::debug("Time: " . date('Y-m-d H:i:s') . " Start CrawlElementPost " . $draft->url);
+		$html = HtmlDomParser::file_get_html($draft->url);
 		$out = [];
 		$arrayTag = ['title_tag', 'content_tag', 'thumb_tag', 'meta_title_tag', 'meta_description_tag'];
 		foreach ($arrayTag as $value) {
@@ -48,43 +43,53 @@ class CrawlServices {
 				$out[$key] = $this->commonServices->findByTag($html, $profile->$value);
 			}
 		}
-		if (isset($out['title']) && isset($out['content'])) {
+		if (!empty($out['content']) && !empty($out['title'])) {
 			$out['slug'] = Str::slug($out['title']);
 			$out['status'] = config('brvcrawler.crawlerStatus.pending');
+			$out['content'] = $this->handleImageInContent($out['content']);
 		} else {
 			$out['status'] = config('brvcrawler.crawlerStatus.fail');
 		}
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " End crawlElementPost ");
-		return $out;
-	}
-
-	public function crawlMultiPost($url, $profile, $level = 0) {
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " StartCrawl " . $url);
-		$html = HtmlDomParser::file_get_html($url);
-		$level = 0;
-		foreach ($html->find('a') as $e) {
-			$level++;
-			$_url = $this->commonServices->handleUrl($e->href, $profile->domain);
-			if ($_url) {
-				if (!$this->checkUrlExist($_url)) {
-					$this->addDraftUrl($_url, $profile);
-				}
-				if ($profile->is_spread) {
-					if (!$this->checkUrlSpread($_url)) {
-						$this->changeSpreadStatus($_url);
-						$this->crawlMultiPost($_url, $profile, $level);
-					}
-				}
-			}
-			// $this->crawlPost(trim($e->href), $profile);
-		}
-		Log::debug("Time: " . date('Y-m-d H:i:s') . " EndCrawl " . $url);
+		$this->crawlerDataRepository->update($out, $draft['id']);
 		return ['code' => '0', 'msg' => 'Crawl success'];
 	}
 
+	public function crawlMultiPost($url, $profile) {
+		if ($this->commonServices->urlStatusCode($url) == '200') {
+			Log::debug("Time: " . date('Y-m-d H:i:s') . " StartCrawl " . $url);
+			$this->handleDralf($url, $profile, 0);
+			$drafts = $this->crawlerDataRepository->where('profile_id', $profile->id)->where('status', config('brvcrawler.crawlerStatus.draft'))->get();
+			foreach ($drafts as $d) {
+				$this->crawlElementPost($d, $profile);
+			}
+			Log::debug("Time: " . date('Y-m-d H:i:s') . " EndCrawl " . $url);
+		}
+		return ['code' => '0', 'msg' => 'Crawl success'];
+
+	}
+
+	public function handleDralf($url, $profile, $level = 0) {
+		$content = $this->commonServices->urlGetContent($url);
+		if ($content['code'] == '200') {
+			$html = HtmlDomParser::str_get_html($content['body']);
+			$level = 0;
+			foreach ($html->find('a') as $e) {
+				$level++;
+				$_url = $this->commonServices->handleUrl($e->href, $profile->domain);
+				if ($_url) {
+					$this->addDraftUrl($_url, $profile);
+					if ($profile->is_spread && !in_array($_url, $this->arrayUrlSpread)) {
+						array_push($this->arrayUrlSpread, $_url);
+						$this->handleDralf($_url, $profile, $level);
+					}
+				}
+			}
+		}
+	}
+
 	public function addDraftUrl($url, $profile) {
-		if ($this->commonServices->URLIsValid($url) && !$this->checkUrlExist($url)) {
-			$this->crawlerDataRepository->create(
+		if (($this->commonServices->urlStatusCode($url) == '200') && !$this->checkUrlExist($url)) {
+			return $this->crawlerDataRepository->create(
 				[
 					'profile_id' => $profile->id,
 					'url' => $url,
@@ -93,11 +98,7 @@ class CrawlServices {
 			);
 		}
 	}
-	public function changeSpreadStatus($url) {
-		$url = $this->crawlerDataRepository->where('url', $url)->first();
-		$url->status = config('brvcrawler.crawlerStatus.spread');
-		$url->save();
-	}
+
 	public function checkUrlExist($url) {
 		$check = $this->crawlerDataRepository->where('url', $url)->first();
 		return ($check) ? true : false;
@@ -115,8 +116,10 @@ class CrawlServices {
 			$imgName = $this->commonServices->filename_from_uri($imgSrc);
 			$newImgSrc = env('APP_URL') . '/storage/photos/shares/download/' . $imgName;
 			$path = $folder_download . $imgName;
-			file_put_contents($path, file_get_contents($imgSrc));
-			$content = str_replace($imgSrc, $newImgSrc, $content);
+			if ($this->commonServices->urlStatusCode($imgSrc) == '200') {
+				file_put_contents($path, file_get_contents($imgSrc));
+				$content = str_replace($imgSrc, $newImgSrc, $content);
+			}
 		}
 		return $content;
 	}
