@@ -7,17 +7,10 @@ class CommonServices {
 		$parts = explode('/', $uri);
 		return array_pop($parts);
 	}
-	public function URLIsValid($URL) {
-		$exists = true;
-		$file_headers = @get_headers($URL);
-		$InvalidHeaders = array('404', '403', '500', '301');
-		foreach ($InvalidHeaders as $HeaderVal) {
-			if (empty($file_headers[0]) || strstr($file_headers[0], $HeaderVal)) {
-				$exists = false;
-				break;
-			}
-		}
-		return $exists;
+	public function URLIsValid($url) {
+		$client = new \GuzzleHttp\Client();
+		$response = $client->request('GET', $url);
+		return ($response->getStatusCode() == '200') ? true : false;
 	}
 
 	public function urlGetContent($url) {

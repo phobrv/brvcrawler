@@ -8,6 +8,7 @@ use Phobrv\BrvCore\Services\UnitServices;
 use Phobrv\BrvCrawler\Repositories\CrawlerDataRepository;
 use Phobrv\BrvCrawler\Repositories\CrawlerProfileRepository;
 use Phobrv\BrvCrawler\Services\CrawlServices;
+use Phobrv\BrvCrawler\Services\CurlServices;
 use Yajra\Datatables\Datatables;
 
 class CrawlerController extends Controller {
@@ -16,12 +17,15 @@ class CrawlerController extends Controller {
 	protected $unitService;
 	protected $crawlService;
 	protected $crawlDataStatus;
+	protected $curlServices;
 	public function __construct(
 		CrawlerProfileRepository $crawlerProfileRepository,
 		CrawlerDataRepository $crawlerDataRepository,
 		CrawlServices $crawlService,
+		CurlServices $curlServices,
 		UnitServices $unitService
 	) {
+		$this->curlServices = $curlServices;
 		$this->crawlerDataRepository = $crawlerDataRepository;
 		$this->crawlerProfileRepository = $crawlerProfileRepository;
 		$this->unitService = $unitService;
