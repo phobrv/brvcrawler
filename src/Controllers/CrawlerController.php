@@ -143,7 +143,6 @@ class CrawlerController extends Controller {
 		case 'addData':
 			$crawlData = $this->crawlerDataRepository->whereIn('id', $data['id'])->where('status', config('brvcrawler.crawlerStatus.pending'))->get();
 			foreach ($crawlData as $crawl) {
-
 				$postData = [
 					'user_id' => '1',
 					'title' => $crawl->title,
@@ -151,8 +150,12 @@ class CrawlerController extends Controller {
 					'content' => $crawl->content,
 					'type' => 'post',
 				];
-				$this->postRepository->create($postData);
-				$this->crawlerDataRepository->update(['status' => config('brvcrawler.crawlerStatus.success')], $crawl->id);
+				$ck = $this->postRepository->where('slug', $crawl->slug)->first();
+				if (empty($ck)) {
+					$this->postRepository->create($postData);
+					$this->crawlerDataRepository->update(['status' => config('brvcrawler.crawlerStatus.success')], $crawl->id);
+				}
+
 			}
 			break;
 		}
