@@ -136,7 +136,7 @@ class CrawlServices {
 			$imgName = $this->commonServices->filename_from_uri($imgSrc);
 			$newImgSrc = env('APP_URL') . '/storage/photos/shares/download/' . $imgName;
 			$path = $folder_download . $imgName;
-			if ($this->commonServices->URLIsValid($imgSrc)) {
+			if ($this->curlServices->httpCode($imgSrc) == '200') {
 				file_put_contents($path, file_get_contents($imgSrc));
 				$content = str_replace($imgSrc, $newImgSrc, $content);
 			}
