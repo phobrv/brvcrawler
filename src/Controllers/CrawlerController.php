@@ -4,6 +4,7 @@ namespace Phobrv\BrvCrawler\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Phobrv\BrvCore\Repositories\PostRepository;
 use Phobrv\BrvCore\Services\UnitServices;
 use Phobrv\BrvCrawler\Repositories\CrawlerDataRepository;
 use Phobrv\BrvCrawler\Repositories\CrawlerProfileRepository;
@@ -12,6 +13,7 @@ use Phobrv\BrvCrawler\Services\CurlServices;
 use Yajra\Datatables\Datatables;
 
 class CrawlerController extends Controller {
+	protected $postRepository;
 	protected $crawlerProfileRepository;
 	protected $crawlerDataRepository;
 	protected $unitService;
@@ -19,12 +21,14 @@ class CrawlerController extends Controller {
 	protected $crawlDataStatus;
 	protected $curlServices;
 	public function __construct(
+		PostRepository $postRepository,
 		CrawlerProfileRepository $crawlerProfileRepository,
 		CrawlerDataRepository $crawlerDataRepository,
 		CrawlServices $crawlService,
 		CurlServices $curlServices,
 		UnitServices $unitService
 	) {
+		$this->postRepository = $postRepository;
 		$this->curlServices = $curlServices;
 		$this->crawlerDataRepository = $crawlerDataRepository;
 		$this->crawlerProfileRepository = $crawlerProfileRepository;
@@ -50,11 +54,14 @@ class CrawlerController extends Controller {
 	public function getData() {
 		$data['crawlerData'] = $this->crawlerDataRepository->all();
 		return Datatables::of($data['crawlerData'])
+			->addColumn('checkbox', function ($post) {
+				return view('phobrv::crawler.components.checkbox', ['id' => $post->id]);
+			})
 			->addColumn('status', function ($post) {
 				return view('phobrv::crawler.components.status', ['status' => $post->status]);
 			})
 			->addColumn('create', function ($post) {
-				return date('d/m/Y', strtotime($post->created_at));
+				return date('Y/m/d', strtotime($post->created_at));
 			})
 			->addColumn('action', function ($post) {
 				return view('phobrv::crawler.components.action', ['post' => $post]);
@@ -121,6 +128,34 @@ class CrawlerController extends Controller {
 			break;
 		}
 		return response()->json(['code' => '0', 'msg' => 'Success']);
+	}
+	public function runAction(Request $request) {
+		$data = $request->all();
+		if (empty($data['id'])) {
+			return;
+		}
+		switch ($data['action']) {
+		case 'del':
+			foreach ($data['id'] as $key => $value) {
+				$this->crawlerDataRepository->destroy($value);
+			}
+			break;
+		case 'addData':
+			$crawlData = $this->crawlerDataRepository->whereIn('id', $data['id'])->where('status', config('brvcrawler.crawlerStatus.pending'))->get();
+			foreach ($crawlData as $crawl) {
+
+				$postData = [
+					'user_id' => '1',
+					'title' => $crawl->title,
+					'slug' => $crawl->slug,
+					'content' => $crawl->content,
+					'type' => 'post',
+				];
+				$this->postRepository->create($postData);
+				$this->crawlerDataRepository->update(['status' => config('brvcrawler.crawlerStatus.success')], $crawl->id);
+			}
+			break;
+		}
 	}
 
 }

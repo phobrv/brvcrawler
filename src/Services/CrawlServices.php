@@ -29,7 +29,6 @@ class CrawlServices {
 	}
 
 	public function crawlPost($url, $profile) {
-		return $this->curlServices->callImage('https://blog.arrow-tech.vn/content/images/2018/09/Inspector-RenderTexture.png');
 		$draft = $this->addDraftUrl($url, $profile);
 		switch ($draft->status) {
 		case config('brvcrawler.crawlerStatus.draft'):

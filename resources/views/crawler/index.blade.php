@@ -30,18 +30,34 @@
 				</div>
 			</div>
 		</form>
-		<table id="crawlerData" class="table table-bordered table-striped">
-			<thead>
-				<tr>
-					<th>{{__('Date Crawl')}}</th>
-					<th>{{__('Link')}}</th>
-					<th>{{__('Title')}}</th>
-					<th>{{__('Status')}}</th>
-					<th class="text-center">{{__('Action')}}</th>
-				</tr>
-			</thead>
+		<form id="listCrawl" >
+			<table id="crawlerData" class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>
+							<div class="btn-group">
+								<button type="button" class="btn btn-default">Action</button>
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+									<span class="caret"></span>
+									<span class="sr-only">Toggle Dropdown</span>
+								</button>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="javascript:runAction('addData')">AddData</a></li>
+									<li><a href="javascript:runAction('del')">Delete</a></li>
+									<li><a href="javascript:selectAll()">Select All</a></li>
+								</ul>
+							</div>
+						</th>
+						<th>{{__('Date Crawl')}}</th>
+						<th style="max-width: 350px;">{{__('Link')}}</th>
+						<th style="max-width: 350px;">{{__('Title')}}</th>
+						<th>{{__('Status')}}</th>
+						<th class="text-center">{{__('Action')}}</th>
+					</tr>
+				</thead>
 
-		</table>
+			</table>
+		</form>
 	</div>
 
 </div>
@@ -60,16 +76,17 @@
 <script type="text/javascript">
 	var crawlerData =  $('#crawlerData').DataTable({
 		lengthMenu: [[15,35,50, -1], [15,35,50, "All"]],
-		"order": [[ 0, "desc" ]],
+		"order": [[ 1, "desc" ]],
 		processing: true,
 		serverSide: true,
 		ajax: "{{ route('crawler.getData') }}",
 		columns:
 		[
+		{ data: 'checkbox', name: 'checkbox',orderable: false, searchable: false ,className:'text-center'},
 		{ data: 'create', name: 'create',className:'text-center' },
 		{ data: 'url', name: 'url' },
 		{ data: 'title', name: 'title' },
-		{ data: 'status', name: 'status', orderable: false, searchable: false,className:'text-center'},
+		{ data: 'status', name: 'status',  searchable: false,className:'text-center'},
 		{ data: 'action', name: 'action',orderable: false, searchable: false,className:'text-center'},
 		]
 	})
@@ -132,6 +149,32 @@
 				}
 			});
 		}
+	}
+
+	function selectAll(){
+		var allCheckbox = $('#listCrawl').find('input[type="checkbox"]')
+		allCheckbox.each(function(index, value){
+			$(this).prop('checked', true)
+		})
+	}
+
+	function runAction(action){
+		var anwser = confirm("Bạn sẽ thực hiện hành động này ?")
+		if(anwser){
+			var data = $('#listCrawl').serializeArray()
+			data.push({name: "action", value: action});
+			$.ajax({
+				headers : { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+				type: "POST",
+				url: '{{URL::route("crawler.runAction")}}',
+				data:data,
+				success: function (res) {
+					console.log(res)
+					crawlerData.draw()
+				}
+			});
+		}
+
 	}
 
 </script>
