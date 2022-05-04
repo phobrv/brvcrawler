@@ -1,4 +1,4 @@
-@extends('phobrv::layout.app')
+@extends('phobrv::adminlte3.layout')
 @section('header')
 <ul>
 	<li>
@@ -13,11 +13,11 @@
 	<div class="col-md-6">
 		<form  class="form-horizontal" id="formSubmit" method="post" action="{{isset($data['crawler_profile']) ? route('crawlerProfile.update',['crawlerProfile'=>$data['crawler_profile']->id]) : route('crawlerProfile.store')}}">
 			@isset($data['crawler_profile']) @method('put') @endif
-			<div class="box box-primary">
+			<div class="card">
 				<div class="box-header font16">
 					Create/Edit quick
 				</div>
-				<div class="box-body">
+				<div class="card-body">
 					@csrf
 					@include('phobrv::input.inputText',['label'=>'Url','key'=>'url', 'required'=> true , 'value'=> $data['crawler_profile']->url ?? '' ])
 					@isset($data['crawler_profile'])
@@ -48,7 +48,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="box-footer">
+				<div class="card-footer">
 					<button class="btn btn-primary pull-right">{{$data['submit_label']}}</button>
 				</div>
 			</div>
@@ -56,8 +56,8 @@
 
 	</div>
 	<div class="col-md-6">
-		<div class="box box-primary">
-			<div class="box-body">
+		<div class="card">
+			<div class="card-body">
 
 				<table id="" class="table table-bordered table-striped">
 					<thead>

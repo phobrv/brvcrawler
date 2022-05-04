@@ -1,4 +1,4 @@
-@extends('phobrv::layout.app')
+@extends('phobrv::adminlte3.layout')
 
 @section('header')
 <a href="{{route('crawler.index')}}"  class="btn btn-default float-left">
@@ -14,8 +14,8 @@
 @endsection
 
 @section('content')
-<div class="box box-primary">
-	<div class="box-body">
+<div class="card">
+	<div class="card-body">
 		<div class="row">
 			<form class="form-horizontal" id="formSubmit" method="post" action="{{isset($data['post']) ? route('crawler.update',array('crawler'=>$data['post']->id)) : route('crawler.store')}}"  enctype="multipart/form-data">
 				@csrf

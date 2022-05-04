@@ -1,4 +1,4 @@
-@extends('phobrv::layout.app')
+@extends('phobrv::adminlte3.layout')
 
 @section('header')
 <ul>
@@ -11,8 +11,8 @@
 @endsection
 
 @section('content')
-<div class="box box-primary">
-	<div class="box-body" >
+<div class="card">
+	<div class="card-body" >
 		<form  id="crawlerForm" class="form-horizontal"  method="post" action="{{ route("crawler.crawl") }}">
 			@csrf
 			<div class="form-group">
