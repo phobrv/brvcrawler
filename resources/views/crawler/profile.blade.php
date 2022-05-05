@@ -14,7 +14,7 @@
 		<form  class="form-horizontal" id="formSubmit" method="post" action="{{isset($data['crawler_profile']) ? route('crawlerProfile.update',['crawlerProfile'=>$data['crawler_profile']->id]) : route('crawlerProfile.store')}}">
 			@isset($data['crawler_profile']) @method('put') @endif
 			<div class="card">
-				<div class="box-header font16">
+				<div class="card-header font16">
 					Create/Edit quick
 				</div>
 				<div class="card-body">
@@ -78,7 +78,7 @@
 								@isset($arrayCrawlerType[$r->type]) {{ $arrayCrawlerType[$r->type] }} @endif
 							</td>
 							<td align="center">
-								<a href="{{route('crawlerProfile.edit',array('crawlerProfile'=>$r->id))}}"><i class="fa fa-edit" title="Sửa"></i></a>
+								<a href="{{route('crawlerProfile.edit',array('crawlerProfile'=>$r->id))}}"><i class="far fa-edit" title="Sửa"></i></a>
 								&nbsp;&nbsp;&nbsp;
 								<a style="color: red" href="#" onclick="destroy('destroy{{$r->id}}')"><i class="fa fa-times" title="Sửa"></i></a>
 								<form id="destroy{{$r->id}}" action="{{ route('crawlerProfile.destroy',array('crawlerProfile'=>$r->id)) }}" method="post" style="display: none;">

@@ -15,7 +15,7 @@
 	<div class="card-body" >
 		<form  id="crawlerForm" class="form-horizontal"  method="post" action="{{ route("crawler.crawl") }}">
 			@csrf
-			<div class="form-group">
+			<div class="form-group row">
 				<label for="inputEmail3" class="col-sm-2 control-label">{{__('Source')}}</label>
 				<div class="col-sm-8">
 					<select  class="form-control" name="source" id="source" required>
