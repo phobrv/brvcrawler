@@ -5,7 +5,7 @@
 	<i class="fa fa-backward"></i> @lang('Back')
 </a>
 <a href="#" onclick="save()"  class="btn btn-primary float-left">
-	<i class="fa fa-floppy-o"></i> @lang('Save & Close')
+	<i class="fas fa-save"></i> @lang('Save & Close')
 </a>
 <a href="#" onclick="update()"  class="btn btn-warning float-left">
 	<i class="fa fa-wrench"></i> @lang('Update')
