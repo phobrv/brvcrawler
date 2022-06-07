@@ -11,7 +11,7 @@ class CreateCrawlerProfileTable extends Migration {
 	 * @return void
 	 */
 	public function up() {
-		Schema::create('crawler_profile', function (Blueprint $table) {
+		Schema::create('brv_crawler_profile', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->string('url', 225)->unique();
 			$table->string('domain', 225)->nullable();
@@ -34,6 +34,6 @@ class CreateCrawlerProfileTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::dropIfExists('crawler_profile');
+		Schema::dropIfExists('brv_crawler_profile');
 	}
 }

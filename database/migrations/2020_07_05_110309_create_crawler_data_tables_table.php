@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Class CreateCrawlerDataTablesTable.
@@ -13,7 +14,7 @@ class CreateCrawlerDataTablesTable extends Migration {
 	 * @return void
 	 */
 	public function up() {
-		Schema::create('crawler_data', function (Blueprint $table) {
+		Schema::create('brv_crawler_data', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->bigInteger('profile_id')->unsigned();
 			$table->foreign('profile_id')->references('id')->on('crawler_profile');
@@ -37,6 +38,6 @@ class CreateCrawlerDataTablesTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::drop('crawler_data');
+		Schema::drop('brv_crawler_data');
 	}
 }
