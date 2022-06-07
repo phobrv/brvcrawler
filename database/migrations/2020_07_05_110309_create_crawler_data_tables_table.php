@@ -17,7 +17,7 @@ class CreateCrawlerDataTablesTable extends Migration {
 		Schema::create('brv_crawler_data', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->bigInteger('profile_id')->unsigned();
-			$table->foreign('profile_id')->references('id')->on('crawler_profile');
+			$table->foreign('profile_id')->references('id')->on('brv_crawler_profile');
 			$table->string('url', 225)->unique();
 			$table->string('slug', 225)->nullable();
 			$table->string('title', 225)->nullable();
