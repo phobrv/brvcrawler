@@ -24,6 +24,6 @@ class CrawlerData extends Model implements Transformable {
 	protected $fillable = ['profile_id', 'url', 'domain', 'slug', 'title', 'content', 'thumb', 'meta_title', 'meta_description', 'meta_keywords', 'excerpt', 'status'];
 
 	public function crawlerProfile() {
-		return $this->belongsTo('Phobrv\BrvCrawler\Models\CrawlerProfile');
+		return $this->belongsTo('Phobrv\BrvCrawler\Models\CrawlerProfile', 'brv_crawler_profile');
 	}
 }

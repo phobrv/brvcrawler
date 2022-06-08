@@ -7,6 +7,7 @@ use Phobrv\BrvCore\Services\UnitServices;
 use Phobrv\BrvCrawler\Repositories\CrawlerProfileRepository;
 use Phobrv\BrvCrawler\Services\CommonServices;
 use Phobrv\BrvCrawler\Services\CrawlServices;
+use Exception;
 
 class CrawlerProfileController extends Controller {
 
