@@ -19,7 +19,7 @@ class CrawlerData extends Model implements Transformable {
 	 *
 	 * @var array
 	 */
-	protected $table = 'crawler_data';
+	protected $table = 'brv_crawler_data';
 
 	protected $fillable = ['profile_id', 'url', 'domain', 'slug', 'title', 'content', 'thumb', 'meta_title', 'meta_description', 'meta_keywords', 'excerpt', 'status'];
 

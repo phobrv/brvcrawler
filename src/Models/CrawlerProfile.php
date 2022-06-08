@@ -20,7 +20,7 @@ class CrawlerProfile extends Model implements Transformable {
 	 * @var array
 	 */
 
-	protected $table = 'crawler_profile';
+	protected $table = 'brv_crawler_profile';
 
 	protected $fillable = ['id', 'url', 'domain', 'type', 'title_tag', 'content_tag', 'thumb_tag', 'meta_title_tag', 'meta_description_tag', 'is_spread', 'max_crawler', 'is_check'];
 
