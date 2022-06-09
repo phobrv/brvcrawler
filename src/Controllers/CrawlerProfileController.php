@@ -50,7 +50,7 @@ class CrawlerProfileController extends Controller {
 
 	public function store(Request $request) {
 		$request->validate([
-			'url' => 'required|unique:crawler_profile',
+			'url' => 'required|unique:brv_crawler_profile',
 		]);
 		try {
 			$data = $request->all();
@@ -82,7 +82,7 @@ class CrawlerProfileController extends Controller {
 
 	public function update(Request $request, $id) {
 		$request->validate([
-			'url' => 'required|unique:crawler_profile,url,' . $id,
+			'url' => 'required|unique:brv_crawler_profile,url,' . $id,
 		]);
 		try {
 			$data = $request->all();
